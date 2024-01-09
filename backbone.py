@@ -17,7 +17,7 @@ class EfficientDetLiteBackbone(nn.Module):
         self.input_sizes = [320, 384, 448, 512, 640] #[512, 640, 768, 896, 1024]
         self.box_class_repeats = [3, 3, 3, 4, 4]
         self.pyramid_levels = [5, 5, 5, 5, 5]
-        self.anchor_scale = [4., 4., 4., 4., 4.]
+        self.anchor_scale = [3., 3., 3., 3., 3.]
         self.aspect_ratios = kwargs.get('ratios', [(1.0, 1.0), (1.4, 0.7), (0.7, 1.4)])
         self.num_scales = len(kwargs.get('scales', [2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)]))
         conv_channel_coef = {
