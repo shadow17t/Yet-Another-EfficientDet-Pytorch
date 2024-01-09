@@ -57,6 +57,10 @@ class MemoryEfficientSwish(nn.Module):
 class Swish(nn.Module):
     def forward(self, x):
         return x * torch.sigmoid(x)
+    
+class Relu6(nn.Module):
+    def forward(self, x):
+        return min(max(0, x), 6)
 
 
 def round_filters(filters, global_params):
@@ -138,7 +142,7 @@ class Identity(nn.Module):
 def efficientnet_params(model_name):
     """ Map EfficientNet model name to parameter coefficients. """
     params_dict = {
-        # Coefficients:   width,depth,res,dropout
+        # Coefficients:   width,depth,img resolution,dropout
         'efficientnet-b0': (1.0, 1.0, 224, 0.2),
         'efficientnet-b1': (1.0, 1.1, 240, 0.2),
         'efficientnet-b2': (1.1, 1.2, 260, 0.3),
@@ -149,6 +153,11 @@ def efficientnet_params(model_name):
         'efficientnet-b7': (2.0, 3.1, 600, 0.5),
         'efficientnet-b8': (2.2, 3.6, 672, 0.5),
         'efficientnet-l2': (4.3, 5.3, 800, 0.5),
+        'efficientnet_lite0': [1.0, 1.0, 224, 0.2],
+        'efficientnet_lite1': [1.0, 1.1, 240, 0.2],
+        'efficientnet_lite2': [1.1, 1.2, 260, 0.3],
+        'efficientnet_lite3': [1.2, 1.4, 280, 0.3],
+        'efficientnet_lite4': [1.4, 1.8, 300, 0.3],
     }
     return params_dict[model_name]
 
@@ -281,6 +290,11 @@ url_map = {
     'efficientnet-b5': 'https://publicmodels.blob.core.windows.net/container/aa/efficientnet-b5-b6417697.pth',
     'efficientnet-b6': 'https://publicmodels.blob.core.windows.net/container/aa/efficientnet-b6-c76e70fd.pth',
     'efficientnet-b7': 'https://publicmodels.blob.core.windows.net/container/aa/efficientnet-b7-dcc49843.pth',
+    'efficientnet-lite0': 'https://github.com/RangiLyu/EfficientNet-Lite/releases/download/v1.0/efficientnet_lite0.pth',
+    'efficientnet_lite1': 'https://github.com/RangiLyu/EfficientNet-Lite/releases/download/v1.0/efficientnet_lite1.pth',
+    'efficientnet_lite2': 'https://github.com/RangiLyu/EfficientNet-Lite/releases/download/v1.0/efficientnet_lite2.pth',
+    'efficientnet_lite3': 'https://github.com/RangiLyu/EfficientNet-Lite/releases/download/v1.0/efficientnet_lite2.pth',
+    'efficientnet_lite4': 'https://github.com/RangiLyu/EfficientNet-Lite/releases/download/v1.0/efficientnet_lite4.pth',
 }
 
 url_map_advprop = {
