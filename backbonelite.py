@@ -238,7 +238,7 @@ class EfficientDetBackbone(nn.Module):
 
 class MiniEfficientDetLiteBackbonexg(nn.Module):
     def __init__(self, num_classes=80, compound_coef=0, load_weights=False, **kwargs):
-        super(MiniEfficientDetLiteBackbone, self).__init__()
+        super(MiniEfficientDetLiteBackbonexg, self).__init__()
         self.compound_coef = compound_coef
 
         self.backbone_compound_coef = [0, 1, 2, 3, 4]
@@ -270,13 +270,15 @@ class MiniEfficientDetLiteBackbonexg(nn.Module):
               for _ in range(self.fpn_cell_repeats[compound_coef])])
 
         self.num_classes = num_classes
-        self.regressor = xgb.XGBRegressor(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
-                                   num_layers=self.box_class_repeats[self.compound_coef],
-                                   pyramid_levels=self.pyramid_levels[self.compound_coef])
-        self.classifier = xgb.XGBClassifier(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
-                                     num_classes=num_classes,
-                                     num_layers=self.box_class_repeats[self.compound_coef],
-                                     pyramid_levels=self.pyramid_levels[self.compound_coef])
+        # self.regressor = xgb.XGBRegressor(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
+        #                            num_layers=self.box_class_repeats[self.compound_coef],
+        #                            pyramid_levels=self.pyramid_levels[self.compound_coef])
+        # self.classifier = xgb.XGBClassifier(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
+        #                              num_classes=num_classes,
+        #                              num_layers=self.box_class_repeats[self.compound_coef],
+        #                              pyramid_levels=self.pyramid_levels[self.compound_coef])
+        self.regressor = nn.Identity()
+        self.classifier = nn.Identity()
 
         self.anchors = Anchors(anchor_scale=self.anchor_scale[compound_coef],
                                pyramid_levels=(torch.arange(self.pyramid_levels[self.compound_coef]) + 3).tolist(),
