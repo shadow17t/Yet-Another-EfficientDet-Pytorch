@@ -2,7 +2,7 @@
 
 import torch
 from torch import nn
-
+import xgboost as xgb
 from efficientdet.modellite import BiFPN, Regressor, Classifier, EfficientNetLite
 from efficientdet.utils import Anchors
 
@@ -270,10 +270,10 @@ class MiniEfficientDetLiteBackbonexg(nn.Module):
               for _ in range(self.fpn_cell_repeats[compound_coef])])
 
         self.num_classes = num_classes
-        self.regressor = Regressor(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
+        self.regressor = xgb.XGBRegressor(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                    num_layers=self.box_class_repeats[self.compound_coef],
                                    pyramid_levels=self.pyramid_levels[self.compound_coef])
-        self.classifier = Classifier(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
+        self.classifier = xgb.XGBClassifier(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                      num_classes=num_classes,
                                      num_layers=self.box_class_repeats[self.compound_coef],
                                      pyramid_levels=self.pyramid_levels[self.compound_coef])
