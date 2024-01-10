@@ -14,7 +14,7 @@ class EfficientDetLiteBackbone(nn.Module):
         self.backbone_compound_coef = [0, 1, 2, 3, 4]
         self.fpn_num_filters = [64, 88, 112, 160, 224]
         self.fpn_cell_repeats = [3, 4, 5, 6, 7]
-        self.input_sizes = [320, 384, 448, 512, 640] #[512, 640, 768, 896, 1024]
+        self.input_sizes = [512, 640, 768, 896, 1024]#[320, 384, 448, 512, 640] #
         self.box_class_repeats = [3, 3, 3, 4, 4]
         self.pyramid_levels = [5, 5, 5, 5, 5]
         self.anchor_scale = [3., 3., 3., 3., 3.]
@@ -89,7 +89,7 @@ class MiniEfficientDetLiteBackbone(nn.Module):
         self.backbone_compound_coef = [0, 1, 2, 3, 4]
         self.fpn_num_filters = [64, 88, 112, 160, 224]
         self.fpn_cell_repeats = [1, 1, 1, 1, 1]
-        self.input_sizes = [320, 384, 448, 512, 640] #[512, 640, 768, 896, 1024]
+        self.input_sizes = [512, 640, 768, 896, 1024]#[320, 384, 448, 512, 640] #
         self.box_class_repeats = [3, 3, 3, 4, 4]
         self.pyramid_levels = [5, 5, 5, 5, 5]
         self.anchor_scale = [3., 3., 3., 3., 3.]
