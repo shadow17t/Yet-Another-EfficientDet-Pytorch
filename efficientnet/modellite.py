@@ -53,10 +53,10 @@ class MBConvBlock(nn.Module):
         self._bn1 = nn.BatchNorm2d(num_features=oup, momentum=self._bn_mom, eps=self._bn_eps)
 
         # Squeeze and Excitation layer, if desired
-        # if self.has_se:
-        #     num_squeezed_channels = max(1, int(self._block_args.input_filters * self._block_args.se_ratio))
-        #     self._se_reduce = Conv2d(in_channels=oup, out_channels=num_squeezed_channels, kernel_size=1)
-        #     self._se_expand = Conv2d(in_channels=num_squeezed_channels, out_channels=oup, kernel_size=1)
+        if self.has_se:
+            num_squeezed_channels = max(1, int(self._block_args.input_filters * self._block_args.se_ratio))
+            self._se_reduce = Conv2d(in_channels=oup, out_channels=num_squeezed_channels, kernel_size=1)
+            self._se_expand = Conv2d(in_channels=num_squeezed_channels, out_channels=oup, kernel_size=1)
 
         # Output phase
         final_oup = self._block_args.output_filters

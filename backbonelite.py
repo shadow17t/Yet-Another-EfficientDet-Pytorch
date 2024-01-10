@@ -3,7 +3,7 @@
 import torch
 from torch import nn
 
-from efficientdet.model import BiFPN, Regressor, Classifier, EfficientNet, EfficientNetLite
+from efficientdet.modellite import BiFPN, Regressor, Classifier, EfficientNetLite
 from efficientdet.utils import Anchors
 
 class EfficientDetLiteBackbone(nn.Module):
