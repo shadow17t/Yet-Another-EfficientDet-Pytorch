@@ -20,7 +20,7 @@ from tqdm import tqdm
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
-from backbonelite import EfficientDetLiteBackbone
+from backbonelite import MiniEfficientDetLiteBackbone, EfficientDetLiteBackbone
 from efficientdet.utils import BBoxTransform, ClipBoxes
 from utils.utils import preprocess, invert_affine, postprocess, boolean_string
 
@@ -49,7 +49,7 @@ print(f'running coco-style evaluation on project {project_name}, weights {weight
 params = yaml.safe_load(open(f'projects/{project_name}.yml'))
 obj_list = params['obj_list']
 
-input_sizes = [512, 640, 768, 896, 1024, 1280, 1280, 1536, 1536] #
+input_sizes = [512, 640, 768, 896, 1024] #, 1280, 1280, 1536, 1536] #
 
 
 def evaluate_coco(img_path, set_name, image_ids, coco, model, threshold=0.05):
@@ -144,7 +144,7 @@ if __name__ == '__main__':
     image_ids = coco_gt.getImgIds()[:MAX_IMAGES]
     
     if override_prev_results or not os.path.exists(f'{SET_NAME}_bbox_results.json'):
-        model = EfficientDetLiteBackbone(compound_coef=compound_coef, num_classes=len(obj_list),
+        model = MiniEfficientDetLiteBackbone(compound_coef=compound_coef, num_classes=len(obj_list),
                                      ratios=eval(params['anchors_ratios']), scales=eval(params['anchors_scales']))
         model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu')))
         model.requires_grad_(False)
