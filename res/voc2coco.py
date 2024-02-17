@@ -6,6 +6,7 @@ from typing import Dict, List
 from tqdm import tqdm
 import re
 
+id_images = 0
 
 def get_label2id(labels_path: str) -> Dict[str, int]:
     """id is 1 start"""
@@ -15,7 +16,17 @@ def get_label2id(labels_path: str) -> Dict[str, int]:
     print(dict(zip(labels_str, labels_ids)))
     return dict(zip(labels_str, labels_ids))
 
-
+def strdateformat(str): #getting YYYY-MM-DD from filename
+    cus_lens = [4, 2, 2]
+    dt=re.findall("([0-9]+)", str)
+    dt0=dt[0]
+    res = []
+    strt = 0
+    for size in cus_lens:
+        res.append(dt0[strt : strt + size])
+        strt += size
+    dat=res[0]+"\\"+res[1]+"\\"+res[2]
+    return dat
 
 def get_annpaths(ann_dir_path: str = None,
                  ann_ids_path: str = None,
@@ -36,26 +47,31 @@ def get_annpaths(ann_dir_path: str = None,
 
 
 def get_image_info(annotation_root, extract_num_from_imgid=True):
+    global id_images
+
     path = annotation_root.findtext('path')
     if path is None:
         filename = annotation_root.findtext('filename')
     else:
         filename = os.path.basename(path)
-    img_name = os.path.basename(filename)
-    img_id = os.path.splitext(img_name)[0]
-    if extract_num_from_imgid and isinstance(img_id, str):
-        img_id = int(re.findall(r'\d+', img_id)[0])
 
     size = annotation_root.find('size')
     width = int(size.findtext('width'))
     height = int(size.findtext('height'))
 
     image_info = {
+        'id': id_images,
         'file_name': filename,
         'height': height,
         'width': width,
-        'id': img_id
+        'date_captured': strdateformat(filename),
+        'license':1,
+        'coco_url': "",
+        'flickr_url': ""
     }
+
+    id_images = id_images+1
+
     return image_info
 
 
@@ -64,20 +80,21 @@ def get_coco_annotation_from_obj(obj, label2id):
     assert label in label2id, f"Error: {label} is not in label2id !"
     category_id = label2id[label]
     bndbox = obj.find('bndbox')
-    xmin = int(float(bndbox.findtext('xmin'))) - 1
-    ymin = int(float(bndbox.findtext('ymin'))) - 1
+    xmin = int(float(bndbox.findtext('xmin'))) - 1 if int(float(bndbox.findtext('xmin'))) > 0 else 0
+    ymin = int(float(bndbox.findtext('ymin'))) - 1 if int(float(bndbox.findtext('ymin'))) > 0 else 0
     xmax = int(float(bndbox.findtext('xmax')))
     ymax = int(float(bndbox.findtext('ymax')))
     assert xmax > xmin and ymax > ymin, f"Box size error !: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}"
     o_width = xmax - xmin
     o_height = ymax - ymin
     ann = {
-        'area': o_width * o_height,
-        'iscrowd': 0,
-        'bbox': [xmin, ymin, o_width, o_height],
+        'id': None,
+        'image_id': id_images,
         'category_id': category_id,
-        'ignore': 0,
-        'segmentation': []  # This script is not for segmentation
+        'iscrowd': 0,
+        'area': o_width * o_height,
+        'bbox': [xmin, ymin, o_width, o_height],
+        'segmentation': [xmin,ymin,xmin,(ymin + o_height), (xmin + o_width), (ymin + o_height), (xmin + o_width), ymin]  # This script is not for segmentation
     }
     return ann
 
@@ -87,12 +104,24 @@ def convert_xmls_to_cocojson(annotation_paths: List[str],
                              output_jsonpath: str,
                              extract_num_from_imgid: bool = True):
     output_json_dict = {
+        "info": {
+                    "description": "",
+                    "url": "",
+                    "version": "",
+                    "year": 2021,
+                    "contributor": "",
+                    "data_created": "2021-05-11"
+                },
+        "licenses": [{
+                    "id": 1,
+                    "name": None,
+                    "url": None
+                }],
+        "categories": [],
         "images": [],
-        "type": "instances",
-        "annotations": [],
-        "categories": []
+        "annotations": []
     }
-    bnd_id = 1  # START_BOUNDING_BOX_ID, TODO input as args ?
+    bnd_id = 0  # START_BOUNDING_BOX_ID, TODO input as args ?
     print('Start converting !')
     for a_path in tqdm(annotation_paths):
         # Read annotation xml
@@ -111,11 +140,11 @@ def convert_xmls_to_cocojson(annotation_paths: List[str],
             bnd_id = bnd_id + 1
 
     for label, label_id in label2id.items():
-        category_info = {'supercategory': 'none', 'id': label_id, 'name': label}
+        category_info = {'id': label_id, 'name': label, 'supercategory': 'none'}
         output_json_dict['categories'].append(category_info)
 
     with open(output_jsonpath, 'w') as f:
-        output_json = json.dumps(output_json_dict)
+        output_json = json.dumps(output_json_dict)#.replace('\\\\', '\\')
         f.write(output_json)
 
 

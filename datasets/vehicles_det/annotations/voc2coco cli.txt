@@ -1,0 +1,17 @@
+python.exe ./res/voc2coco.py --ann_dir C:/Users/62852/Documents/GitHub/Object-Tagging-PascalVOC-export/Annotations --ann_ids C:/Users/62852/Downloads/birdview_vehicles/annotations/valid.txt --labels C:/Users/62852/Documents/GitHub/Object-Tagging-PascalVOC-export/Annotations/classes.txt --output C:/Users/62852/Downloads/birdview_vehicles/annotations/instances_val2.json --ext xml
+
+
+#cmd:
+# sumber: https://github.com/yukkyo/voc2coco
+#python.exe VOC2COCO_FILE_LOCATION -ann_dir ANNOTATION_FOLDER_LOCATION --ann_ids DATASET_FILENAMES_LOCATION --labels LABELS/CLASSES_FILE_LOCATION --output JSON_LOCATION --ext xml (work only xml files)
+
+# your dataset structure should be like this
+datasets/
+    -your_project_name/
+        -train_set_name/
+            -*.jpg
+        -val_set_name/
+            -*.jpg
+        -annotations
+            -instances_{train_set_name}.json
+            -instances_{val_set_name}.json
