@@ -1,6 +1,7 @@
 __version__ = "0.6.1"
 from .model import EfficientNet
 from .modellite import EfficientNetLite
+from .modelliteplus import EfficientNetLitePlus
 from .utils import (
     GlobalParams,
     BlockArgs,
