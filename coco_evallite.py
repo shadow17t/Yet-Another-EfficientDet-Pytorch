@@ -144,7 +144,7 @@ if __name__ == '__main__':
     image_ids = coco_gt.getImgIds()[:MAX_IMAGES]
     
     if override_prev_results or not os.path.exists(f'{SET_NAME}_bbox_results.json'):
-        model = MiniEfficientDetLiteBackbone(compound_coef=compound_coef, num_classes=len(obj_list),
+        model = EfficientDetLiteBackbone(compound_coef=compound_coef, num_classes=len(obj_list),
                                      ratios=eval(params['anchors_ratios']), scales=eval(params['anchors_scales']))
         model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu')))
         model.requires_grad_(False)
