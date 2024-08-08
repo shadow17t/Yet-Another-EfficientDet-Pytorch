@@ -141,11 +141,11 @@ class Mod_MBConvBlock(nn.Module):
             self._bn0 = nn.BatchNorm2d(num_features=oup, momentum=self._bn_mom, eps=self._bn_eps)
 
         # # Depthwise convolution phase
-        # k = self._block_args.kernel_size
+        k = self._block_args.kernel_size
         # s = self._block_args.stride
-        self._depthwise_conv = nn.Identity()#Conv2d(
-            # in_channels=oup, out_channels=oup, groups=oup,  # groups makes it depthwise
-            # kernel_size=k, stride=s, bias=False)
+        self._depthwise_conv = nn.Identity(#Conv2d(
+            in_channels=oup, out_channels=oup, groups=oup,  # groups makes it depthwise
+            kernel_size=k, stride=s, bias=False)
         # self._bn1 = nn.BatchNorm2d(num_features=oup, momentum=self._bn_mom, eps=self._bn_eps)
 
         # Output phase
