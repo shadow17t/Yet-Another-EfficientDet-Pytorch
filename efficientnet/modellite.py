@@ -105,9 +105,9 @@ class MBConvBlock(nn.Module):
             x = x + inputs  # skip connection
         return x
 
-    def set_swish(self, memory_efficient=True):
-        """Sets swish function as memory efficient (for training) or standard (for export)"""
-        self._swish = MemoryEfficientSwish() if memory_efficient else Swish()
+    # def set_swish(self, memory_efficient=True):
+    #     """Sets swish function as memory efficient (for training) or standard (for export)"""
+    #     self._swish = MemoryEfficientSwish() if memory_efficient else Swish()
 
 
 class EfficientNetLite(nn.Module):

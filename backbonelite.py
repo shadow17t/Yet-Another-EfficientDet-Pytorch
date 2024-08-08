@@ -2,7 +2,7 @@
 
 import torch
 from torch import nn
-import xgboost as xgb
+# import xgboost as xgb
 from efficientdet.modellite import BiFPN, Regressor, Classifier, EfficientNetLite
 from efficientdet.utils import Anchors
 
