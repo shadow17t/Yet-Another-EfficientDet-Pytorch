@@ -511,9 +511,11 @@ class EfficientNetLitePlus(nn.Module):
                 drop_connect_rate *= float(idx) / len(self.model._blocks)
             x = block(x, drop_connect_rate=drop_connect_rate)
 
-            if block._depthwise_conv.stride == [2, 2]:
-                feature_maps.append(last_x)
-            elif idx == len(self.model._blocks) - 1:
+            # if block._depthwise_conv.stride == [2, 2]:
+            #     feature_maps.append(last_x)
+            # elif idx == len(self.model._blocks) - 1:
+            #     feature_maps.append(x)
+            if idx == len(self.model._blocks) - 1:
                 feature_maps.append(x)
             last_x = x
         del last_x
