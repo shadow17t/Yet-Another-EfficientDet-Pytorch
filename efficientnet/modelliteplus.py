@@ -143,9 +143,9 @@ class Mod_MBConvBlock(nn.Module):
         # # Depthwise convolution phase
         k = self._block_args.kernel_size
         # s = self._block_args.stride
-        self._depthwise_conv = nn.Identity(#Conv2d(
-            in_channels=oup, out_channels=oup, groups=oup,  # groups makes it depthwise
-            kernel_size=k, stride=s, bias=False)
+        # self._depthwise_conv = nn.Identity()#Conv2d(
+            # in_channels=oup, out_channels=oup, groups=oup,  # groups makes it depthwise
+            # kernel_size=k, stride=s, bias=False)
         # self._bn1 = nn.BatchNorm2d(num_features=oup, momentum=self._bn_mom, eps=self._bn_eps)
 
         # Output phase
@@ -168,7 +168,7 @@ class Mod_MBConvBlock(nn.Module):
             x = self._bn0(x)
             x = self._relu(x)
 
-        x = self._depthwise_conv(x)
+        # x = self._depthwise_conv(x)
         # x = self._bn1(x)
         # x = self._relu(x)
 
@@ -233,7 +233,7 @@ class EfficientNetLitePlus(nn.Module):
                 if block_args.num_repeat > 1:
                     block_args = block_args._replace(input_filters=block_args.output_filters, stride=1)
                 for _ in range(block_args.num_repeat - 1):
-                    self._blocks.append(MBConvBlock(block_args, self._global_params))
+                    self._blocks.append(Mod_MBConvBlock(block_args, self._global_params))
             else:
                 self._blocks.append(MBConvBlock(block_args, self._global_params))
                 if block_args.num_repeat > 1:
