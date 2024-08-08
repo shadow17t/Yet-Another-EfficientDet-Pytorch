@@ -228,18 +228,24 @@ class EfficientNetLitePlus(nn.Module):
             )
 
             # The first block needs to take care of stride and filter size increase.
-            if self._blocks_args.index(block_args) < 3:
+            self._blocks.append(Mod_MBConvBlock(block_args, self._global_params))
+            if block_args.num_repeat > 1:
+                block_args = block_args._replace(input_filters=block_args.output_filters, stride=1)
+            for _ in range(block_args.num_repeat - 1):
                 self._blocks.append(Mod_MBConvBlock(block_args, self._global_params))
-                if block_args.num_repeat > 1:
-                    block_args = block_args._replace(input_filters=block_args.output_filters, stride=1)
-                for _ in range(block_args.num_repeat - 1):
-                    self._blocks.append(Mod_MBConvBlock(block_args, self._global_params))
-            else:
-                self._blocks.append(MBConvBlock(block_args, self._global_params))
-                if block_args.num_repeat > 1:
-                    block_args = block_args._replace(input_filters=block_args.output_filters, stride=1)
-                for _ in range(block_args.num_repeat - 1):
-                    self._blocks.append(MBConvBlock(block_args, self._global_params))
+
+            # if self._blocks_args.index(block_args) < 3:
+            #     self._blocks.append(Mod_MBConvBlock(block_args, self._global_params))
+            #     if block_args.num_repeat > 1:
+            #         block_args = block_args._replace(input_filters=block_args.output_filters, stride=1)
+            #     for _ in range(block_args.num_repeat - 1):
+            #         self._blocks.append(Mod_MBConvBlock(block_args, self._global_params))
+            # else:
+            #     self._blocks.append(MBConvBlock(block_args, self._global_params))
+            #     if block_args.num_repeat > 1:
+            #         block_args = block_args._replace(input_filters=block_args.output_filters, stride=1)
+            #     for _ in range(block_args.num_repeat - 1):
+            #         self._blocks.append(MBConvBlock(block_args, self._global_params))
 
         # Head
         in_channels = block_args.output_filters  # output of final block
