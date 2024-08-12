@@ -227,8 +227,8 @@ class VarifocalLoss(nn.Module):
         self.iou_weighted = iou_weighted
 
     def forward(self, classifications, regressions, anchors, annotations, **kwargs):
-        # alpha = 0.75
-        # gamma = 2.0
+        alpha = 0.75
+        gamma = 2.0
         # use_sigmoid=True
         # iou_weighted=True
         batch_size = classifications.shape[0]
