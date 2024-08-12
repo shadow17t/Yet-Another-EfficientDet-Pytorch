@@ -12,11 +12,13 @@ def calc_iou(a, b):
     # a(anchor) [boxes, (y1, x1, y2, x2)]
     # b(gt, coco-style) [boxes, (x1, y1, x2, y2)]
 
-    area = (b[:, 2] - b[:, 0]) * (b[:, 3] - b[:, 1])
+    area = (b[:, 2] - b[:, 0]) * (b[:, 3] - b[:, 1]) #bbox area
+
     iw = torch.min(torch.unsqueeze(a[:, 3], dim=1), b[:, 2]) - torch.max(torch.unsqueeze(a[:, 1], 1), b[:, 0])
     ih = torch.min(torch.unsqueeze(a[:, 2], dim=1), b[:, 3]) - torch.max(torch.unsqueeze(a[:, 0], 1), b[:, 1])
     iw = torch.clamp(iw, min=0)
     ih = torch.clamp(ih, min=0)
+
     ua = torch.unsqueeze((a[:, 2] - a[:, 0]) * (a[:, 3] - a[:, 1]), dim=1) + area - iw * ih
     ua = torch.clamp(ua, min=1e-8)
     intersection = iw * ih
@@ -24,6 +26,41 @@ def calc_iou(a, b):
 
     return IoU
 
+def calc_diou(a, b):
+    # Menghitung IoU
+    area = (b[:, 2] - b[:, 0]) * (b[:, 3] - b[:, 1])
+
+    iw = torch.min(torch.unsqueeze(a[:, 3], dim=1), b[:, 2]) - torch.max(torch.unsqueeze(a[:, 1], 1), b[:, 0])
+    ih = torch.min(torch.unsqueeze(a[:, 2], dim=1), b[:, 3]) - torch.max(torch.unsqueeze(a[:, 0], 1), b[:, 1])
+    iw = torch.clamp(iw, min=0)
+    ih = torch.clamp(ih, min=0)
+
+    ua = torch.unsqueeze((a[:, 2] - a[:, 0]) * (a[:, 3] - a[:, 1]), dim=1) + area - iw * ih
+    ua = torch.clamp(ua, min=1e-8)
+    intersection = iw * ih
+    iou = intersection / ua
+
+    # Menghitung jarak antar pusat
+    a_center_x = torch.unsqueeze(a[:, 3] + a[:, 1], dim=1) / 2
+    a_center_y = torch.unsqueeze(a[:, 2] + a[:, 0], dim=1) / 2
+    b_center_x = (b[:, 2] + b[:, 0]) / 2
+    b_center_y = (b[:, 3] + b[:, 1]) / 2
+
+    center_dist = (a_center_x - b_center_x)**2 + (a_center_y - b_center_y)**2
+
+    # Menghitung diagonal terpanjang dari bounding box terluar
+    enclose_x1 = torch.min(torch.unsqueeze(a[:, 1], dim=1), b[:, 0])
+    enclose_y1 = torch.min(torch.unsqueeze(a[:, 0], dim=1), b[:, 1])
+    enclose_x2 = torch.max(torch.unsqueeze(a[:, 3], dim=1), b[:, 2])
+    enclose_y2 = torch.max(torch.unsqueeze(a[:, 2], dim=1), b[:, 3])
+    
+    enclose_diagonal = (enclose_x2 - enclose_x1)**2 + (enclose_y2 - enclose_y1)**2
+    enclose_diagonal = torch.clamp(enclose_diagonal, min=1e-8)
+
+    # Menghitung DIoU
+    diou = iou - center_dist / enclose_diagonal
+
+    return diou
 
 class FocalLoss(nn.Module):
     def __init__(self):
