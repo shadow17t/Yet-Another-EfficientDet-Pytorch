@@ -122,7 +122,7 @@ class FocalLoss(nn.Module):
 
                 continue
                 
-            IoU = calc_iou(anchor[:, :], bbox_annotation[:, :4])
+            IoU = calc_diou(anchor[:, :], bbox_annotation[:, :4])
 
             IoU_max, IoU_argmax = torch.max(IoU, dim=1)
 
@@ -313,7 +313,7 @@ class VarifocalLoss(nn.Module):
             else:
                 pred_sigmoid = classification
 
-            target_onehot = F.one_hot(targets.long(), num_classes=classification.shape[-1])
+            target_onehot = F.one_hot(targets.to(dtype), num_classes=classification.shape[-1])
 
             if self.iou_weighted:
                 focal_weight = torch.pow(IoU_max.unsqueeze(-1).expand_as(target_onehot) - pred_sigmoid, self.gamma)
