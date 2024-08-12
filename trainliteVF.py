@@ -18,7 +18,7 @@ from tqdm.autonotebook import tqdm
 
 from backbonelite import EfficientDetLiteBackbone, MiniEfficientDetLiteBackbone
 from efficientdet.dataset import CocoDataset, Resizer, Normalizer, Augmenter, collater
-from efficientdet.loss import VarifocalLoss
+from efficientdet.loss import FocalLoss, VarifocalLoss
 from utils.sync_batchnorm import patch_replication_callback
 from utils.utils import replace_w_sync_bn, CustomDataParallel, get_last_weights, init_weights, boolean_string
 
@@ -120,7 +120,7 @@ def train(opt):
                                                         Resizer(input_sizes[opt.compound_coef])]))
     val_generator = DataLoader(val_set, **val_params)
 
-    model = MiniEfficientDetLiteBackbone(num_classes=len(params.obj_list), compound_coef=opt.compound_coef,
+    model = EfficientDetLiteBackbone(num_classes=len(params.obj_list), compound_coef=opt.compound_coef,
                                  ratios=eval(params.anchors_ratios), scales=eval(params.anchors_scales))
 
     # load last weights

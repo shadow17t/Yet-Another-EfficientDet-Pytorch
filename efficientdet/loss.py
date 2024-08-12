@@ -219,14 +219,18 @@ class FocalLoss(nn.Module):
                torch.stack(regression_losses).mean(dim=0, keepdim=True) * 50  # https://github.com/google/automl/blob/6fdd1de778408625c1faf368a327fe36ecd41bf7/efficientdet/hparams_config.py#L233
 
 class VarifocalLoss(nn.Module):
-    def __init__(self):
+    def __init__(self, use_sigmoid=True, alpha=0.75, gamma=2.0, iou_weighted=True):
         super(VarifocalLoss, self).__init__()
+        self.use_sigmoid = use_sigmoid
+        self.alpha = alpha
+        self.gamma = gamma
+        self.iou_weighted = iou_weighted
 
     def forward(self, classifications, regressions, anchors, annotations, **kwargs):
-        alpha = 0.75
-        gamma = 2.0
-        use_sigmoid=True
-        iou_weighted=True
+        # alpha = 0.75
+        # gamma = 2.0
+        # use_sigmoid=True
+        # iou_weighted=True
         batch_size = classifications.shape[0]
         classification_losses = []
         regression_losses = []
