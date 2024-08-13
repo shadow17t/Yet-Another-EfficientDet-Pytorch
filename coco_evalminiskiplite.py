@@ -20,7 +20,7 @@ from tqdm import tqdm
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
-from backboneliteplus import MiniEfficientDetLiteBackbonePlus, EfficientDetLiteBackbonePlus
+from backbonelite import MiniEfficientDetLiteBackbone, EfficientDetLiteBackbone, MiniSkipEfficientDetLiteBackbone
 from efficientdet.utils import BBoxTransform, ClipBoxes
 from utils.utils import preprocess, invert_affine, postprocess, boolean_string
 
@@ -144,7 +144,7 @@ if __name__ == '__main__':
     image_ids = coco_gt.getImgIds()[:MAX_IMAGES]
     
     if override_prev_results or not os.path.exists(f'{SET_NAME}_bbox_results.json'):
-        model = EfficientDetLiteBackbonePlus(compound_coef=compound_coef, num_classes=len(obj_list),
+        model = MiniSkipEfficientDetLiteBackbone(compound_coef=compound_coef, num_classes=len(obj_list),
                                      ratios=eval(params['anchors_ratios']), scales=eval(params['anchors_scales']))
         model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu')))
         model.requires_grad_(False)

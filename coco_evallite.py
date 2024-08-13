@@ -20,7 +20,7 @@ from tqdm import tqdm
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
-from backbonelite import MiniEfficientDetLiteBackbone, EfficientDetLiteBackbone
+from backbonelite import MiniEfficientDetLiteBackbone, EfficientDetLiteBackbone, MiniSkipEfficientDetLiteBackbone
 from efficientdet.utils import BBoxTransform, ClipBoxes
 from utils.utils import preprocess, invert_affine, postprocess, boolean_string
 
