@@ -16,9 +16,9 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm.autonotebook import tqdm
 
-from backbonelite import EfficientDetLiteBackbone, MiniEfficientDetLiteBackbone
+from backbonelite import EfficientDetLiteBackbone, MiniEfficientDetLiteBackbone, MiniSkipEfficientDetLiteBackbone
 from efficientdet.dataset import CocoDataset, Resizer, Normalizer, Augmenter, collater
-from efficientdet.loss import FocalLoss, VarifocalLoss
+from efficientdet.loss import FocalLoss #, VarifocalLoss
 from utils.sync_batchnorm import patch_replication_callback
 from utils.utils import replace_w_sync_bn, CustomDataParallel, get_last_weights, init_weights, boolean_string
 

@@ -16,9 +16,9 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm.autonotebook import tqdm
 
-from backboneliteplus import EfficientDetLiteBackbonePlus, MiniEfficientDetLiteBackbonePlus
+from backbonelite import EfficientDetLiteBackbone, MiniEfficientDetLiteBackbone, MiniSkipEfficientDetLiteBackbone
 from efficientdet.dataset import CocoDataset, Resizer, Normalizer, Augmenter, collater
-from efficientdet.loss import FocalLoss
+from efficientdet.loss import FocalLoss #, VarifocalLoss
 from utils.sync_batchnorm import patch_replication_callback
 from utils.utils import replace_w_sync_bn, CustomDataParallel, get_last_weights, init_weights, boolean_string
 
@@ -120,7 +120,7 @@ def train(opt):
                                                         Resizer(input_sizes[opt.compound_coef])]))
     val_generator = DataLoader(val_set, **val_params)
 
-    model = MiniEfficientDetLiteBackbonePlus(num_classes=len(params.obj_list), compound_coef=opt.compound_coef,
+    model = MiniSkipEfficientDetLiteBackbone(num_classes=len(params.obj_list), compound_coef=opt.compound_coef,
                                  ratios=eval(params.anchors_ratios), scales=eval(params.anchors_scales))
 
     # load last weights
@@ -151,7 +151,7 @@ def train(opt):
     if opt.head_only:
         def freeze_backbone(m):
             classname = m.__class__.__name__
-            for ntl in ['MiniEfficientNetLitePlus', 'BiFPN']:
+            for ntl in ['EfficientNetLite', 'BiFPN']:
                 if ntl in classname:
                     for param in m.parameters():
                         param.requires_grad = False
