@@ -8,8 +8,6 @@ from efficientnet import EfficientNetLitePlus as EffNetLitePlus
 from efficientnet.utils import MemoryEfficientSwish, Swish
 from efficientnet.utils_extra import Conv2dStaticSamePadding, MaxPool2dStaticSamePadding
 
-# import xgboost as xgb
-
 
 def nms(dets, thresh):
     return nms_torch(dets[:, :4], dets[:, 4], thresh)
@@ -56,7 +54,6 @@ class SeparableConvBlock(nn.Module):
             # x = self.swish(x)
 
         return x
-
 
 class BiFPN(nn.Module):
     """
@@ -700,7 +697,6 @@ class Regressor(nn.Module):
 
         return feats
 
-
 class Classifier(nn.Module):
     """
     modified by Zylo117, shadow17t
@@ -747,7 +743,7 @@ class EfficientNetLite(nn.Module):
     modified by Zylo117, shadow17t
     """
 
-    def __init__(self, compound_coef, load_weights=False):
+    def __init__(self, compound_coef, load_weights=False, onnx_export = False):
         super(EfficientNetLite, self).__init__()
         model = EffNetLite.from_pretrained(f'efficientnet_lite{compound_coef}', load_weights)
         del model._conv_head
@@ -770,7 +766,7 @@ class EfficientNetLite(nn.Module):
                 drop_connect_rate *= float(idx) / len(self.model._blocks)
             x = block(x, drop_connect_rate=drop_connect_rate)
 
-            if block._depthwise_conv.stride == [2, 2]:
+            if block._depthwise_conv.stride == (2, 2):
                 feature_maps.append(last_x)
             elif idx == len(self.model._blocks) - 1:
                 feature_maps.append(x)
@@ -778,43 +774,43 @@ class EfficientNetLite(nn.Module):
         del last_x
         return feature_maps[1:]
 
-class EfficientNetLitePlus(nn.Module):
-    """
-    modified by shadow17t
-    """
+# class EfficientNetLitePlus(nn.Module):
+#     """
+#     modified by shadow17t
+#     """
 
-    def __init__(self, compound_coef, load_weights=False):
-        super(EfficientNetLitePlus, self).__init__()
-        model = EffNetLitePlus.from_pretrained(f'efficientnet_lite{compound_coef}', load_weights)
-        del model._conv_head
-        del model._bn1
-        del model._avg_pooling
-        del model._dropout
-        del model._fc
-        self.model = model
+#     def __init__(self, compound_coef, load_weights=False):
+#         super(EfficientNetLitePlus, self).__init__()
+#         model = EffNetLitePlus.from_pretrained(f'efficientnet_lite{compound_coef}', load_weights)
+#         del model._conv_head
+#         del model._bn1
+#         del model._avg_pooling
+#         del model._dropout
+#         del model._fc
+#         self.model = model
 
-    def forward(self, x):
-        x = self.model._conv_stem(x)
-        x = self.model._bn0(x)
-        x = self.model._relu(x)
-        feature_maps = []
+#     def forward(self, x):
+#         x = self.model._conv_stem(x)
+#         x = self.model._bn0(x)
+#         x = self.model._relu(x)
+#         feature_maps = []
 
-        last_x = None
-        for idx, block in enumerate(self.model._blocks):
-            drop_connect_rate = self.model._global_params.drop_connect_rate
-            if drop_connect_rate:
-                drop_connect_rate *= float(idx) / len(self.model._blocks)
-            x = block(x, drop_connect_rate=drop_connect_rate)
+#         last_x = None
+#         for idx, block in enumerate(self.model._blocks):
+#             drop_connect_rate = self.model._global_params.drop_connect_rate
+#             if drop_connect_rate:
+#                 drop_connect_rate *= float(idx) / len(self.model._blocks)
+#             x = block(x, drop_connect_rate=drop_connect_rate)
 
-            # if block._depthwise_conv.stride == [2, 2]:
-            #     feature_maps.append(last_x)
-            # elif idx == len(self.model._blocks) - 1:
-            #     feature_maps.append(x)
-            if idx == len(self.model._blocks) - 1:
-                feature_maps.append(x)
-            last_x = x
-        del last_x
-        return feature_maps[1:]
+#             # if block._depthwise_conv.stride == [2, 2]:
+#             #     feature_maps.append(last_x)
+#             # elif idx == len(self.model._blocks) - 1:
+#             #     feature_maps.append(x)
+#             if idx == len(self.model._blocks) - 1:
+#                 feature_maps.append(x)
+#             last_x = x
+#         del last_x
+#         return feature_maps[1:]
 
 
 if __name__ == '__main__':

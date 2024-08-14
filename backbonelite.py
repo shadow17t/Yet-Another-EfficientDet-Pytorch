@@ -2,14 +2,15 @@
 
 import torch
 from torch import nn
-# import xgboost as xgb
+
 from efficientdet.modellite import BiFPN, SkipBiFPN, Regressor, Classifier, EfficientNetLite
 from efficientdet.utils import Anchors
 
 class EfficientDetLiteBackbone(nn.Module):
-    def __init__(self, num_classes=80, compound_coef=0, load_weights=False, **kwargs):
+    def __init__(self, num_classes=80, compound_coef=0, load_weights=False, onnx_export=False, **kwargs):
         super(EfficientDetLiteBackbone, self).__init__()
         self.compound_coef = compound_coef
+        self.onnx_export = onnx_export
 
         self.backbone_compound_coef = [0, 1, 2, 3, 4]
         self.fpn_num_filters = [64, 88, 112, 160, 224]
@@ -36,23 +37,24 @@ class EfficientDetLiteBackbone(nn.Module):
                     conv_channel_coef[compound_coef],
                     True if _ == 0 else False,
                     attention=True,# if compound_coef < 6 else False,
+                    onnx_export = self.onnx_export,
                     use_p8=False) #compound_coef > 7)
               for _ in range(self.fpn_cell_repeats[compound_coef])])
 
         self.num_classes = num_classes
         self.regressor = Regressor(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                    num_layers=self.box_class_repeats[self.compound_coef],
-                                   pyramid_levels=self.pyramid_levels[self.compound_coef])
+                                   pyramid_levels=self.pyramid_levels[self.compound_coef], onnx_export = self.onnx_export)
         self.classifier = Classifier(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                      num_classes=num_classes,
                                      num_layers=self.box_class_repeats[self.compound_coef],
-                                     pyramid_levels=self.pyramid_levels[self.compound_coef])
+                                     pyramid_levels=self.pyramid_levels[self.compound_coef], onnx_export = self.onnx_export)
 
         self.anchors = Anchors(anchor_scale=self.anchor_scale[compound_coef],
                                pyramid_levels=(torch.arange(self.pyramid_levels[self.compound_coef]) + 3).tolist(),
                                **kwargs)
 
-        self.backbone_net = EfficientNetLite(self.backbone_compound_coef[compound_coef], load_weights)
+        self.backbone_net = EfficientNetLite(self.backbone_compound_coef[compound_coef], load_weights, onnx_export = self.onnx_export)
 
     def freeze_bn(self):
         for m in self.modules():
@@ -82,9 +84,10 @@ class EfficientDetLiteBackbone(nn.Module):
             print('Ignoring ' + str(e) + '"')
 
 class SkipEfficientDetLiteBackbone(nn.Module):
-    def __init__(self, num_classes=80, compound_coef=0, load_weights=False, **kwargs):
+    def __init__(self, num_classes=80, compound_coef=0, load_weights=False, onnx_export=False, **kwargs):
         super(SkipEfficientDetLiteBackbone, self).__init__()
         self.compound_coef = compound_coef
+        self.onnx_export = onnx_export
 
         self.backbone_compound_coef = [0, 1, 2, 3, 4]
         self.fpn_num_filters = [64, 88, 112, 160, 224]
@@ -111,23 +114,24 @@ class SkipEfficientDetLiteBackbone(nn.Module):
                     conv_channel_coef[compound_coef],
                     True if _ == 0 else False,
                     attention=True,# if compound_coef < 6 else False,
+                    onnx_export = self.onnx_export,
                     use_p8=False) #compound_coef > 7)
               for _ in range(self.fpn_cell_repeats[compound_coef])])
 
         self.num_classes = num_classes
         self.regressor = Regressor(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                    num_layers=self.box_class_repeats[self.compound_coef],
-                                   pyramid_levels=self.pyramid_levels[self.compound_coef])
+                                   pyramid_levels=self.pyramid_levels[self.compound_coef], onnx_export = self.onnx_export)
         self.classifier = Classifier(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                      num_classes=num_classes,
                                      num_layers=self.box_class_repeats[self.compound_coef],
-                                     pyramid_levels=self.pyramid_levels[self.compound_coef])
+                                     pyramid_levels=self.pyramid_levels[self.compound_coef], onnx_export = self.onnx_export)
 
         self.anchors = Anchors(anchor_scale=self.anchor_scale[compound_coef],
                                pyramid_levels=(torch.arange(self.pyramid_levels[self.compound_coef]) + 3).tolist(),
                                **kwargs)
 
-        self.backbone_net = EfficientNetLite(self.backbone_compound_coef[compound_coef], load_weights)
+        self.backbone_net = EfficientNetLite(self.backbone_compound_coef[compound_coef], load_weights, onnx_export = self.onnx_export)
 
     def freeze_bn(self):
         for m in self.modules():
@@ -157,9 +161,10 @@ class SkipEfficientDetLiteBackbone(nn.Module):
             print('Ignoring ' + str(e) + '"')
 
 class MiniEfficientDetLiteBackbone(nn.Module):
-    def __init__(self, num_classes=80, compound_coef=0, load_weights=False, **kwargs):
+    def __init__(self, num_classes=80, compound_coef=0, load_weights=False, onnx_export=False, **kwargs):
         super(MiniEfficientDetLiteBackbone, self).__init__()
         self.compound_coef = compound_coef
+        self.onnx_export = onnx_export
 
         self.backbone_compound_coef = [0, 1, 2, 3, 4]
         self.fpn_num_filters = [64, 88, 112, 160, 224]
@@ -185,24 +190,25 @@ class MiniEfficientDetLiteBackbone(nn.Module):
             *[BiFPN(self.fpn_num_filters[self.compound_coef],
                     conv_channel_coef[compound_coef],
                     True if _ == 0 else False,
-                    attention=True if compound_coef < 6 else False,
+                    attention=True, #if compound_coef < 6 else False,
+                    onnx_export = self.onnx_export,
                     use_p8=False) #compound_coef > 7)
               for _ in range(self.fpn_cell_repeats[compound_coef])])
 
         self.num_classes = num_classes
         self.regressor = Regressor(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                    num_layers=self.box_class_repeats[self.compound_coef],
-                                   pyramid_levels=self.pyramid_levels[self.compound_coef])
+                                   pyramid_levels=self.pyramid_levels[self.compound_coef], onnx_export = self.onnx_export)
         self.classifier = Classifier(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                      num_classes=num_classes,
                                      num_layers=self.box_class_repeats[self.compound_coef],
-                                     pyramid_levels=self.pyramid_levels[self.compound_coef])
+                                     pyramid_levels=self.pyramid_levels[self.compound_coef], onnx_export = self.onnx_export)
 
         self.anchors = Anchors(anchor_scale=self.anchor_scale[compound_coef],
                                pyramid_levels=(torch.arange(self.pyramid_levels[self.compound_coef]) + 3).tolist(),
                                **kwargs)
 
-        self.backbone_net = EfficientNetLite(self.backbone_compound_coef[compound_coef], load_weights)
+        self.backbone_net = EfficientNetLite(self.backbone_compound_coef[compound_coef], load_weights, onnx_export = self.onnx_export)
 
     def freeze_bn(self):
         for m in self.modules():
@@ -232,9 +238,10 @@ class MiniEfficientDetLiteBackbone(nn.Module):
             print('Ignoring ' + str(e) + '"')
 
 class MiniSkipEfficientDetLiteBackbone(nn.Module):
-    def __init__(self, num_classes=80, compound_coef=0, load_weights=False, **kwargs):
+    def __init__(self, num_classes=80, compound_coef=0, load_weights=False, onnx_export=False, **kwargs):
         super(MiniSkipEfficientDetLiteBackbone, self).__init__()
         self.compound_coef = compound_coef
+        self.onnx_export = onnx_export
 
         self.backbone_compound_coef = [0, 1, 2, 3, 4]
         self.fpn_num_filters = [64, 88, 112, 160, 224]
@@ -260,24 +267,27 @@ class MiniSkipEfficientDetLiteBackbone(nn.Module):
             *[SkipBiFPN(self.fpn_num_filters[self.compound_coef],
                     conv_channel_coef[compound_coef],
                     True if _ == 0 else False,
-                    attention=True if compound_coef < 6 else False,
+                    attention=True,# if compound_coef < 6 else False,
+                    onnx_export = self.onnx_export,
                     use_p8=False) #compound_coef > 7)
               for _ in range(self.fpn_cell_repeats[compound_coef])])
 
         self.num_classes = num_classes
         self.regressor = Regressor(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                    num_layers=self.box_class_repeats[self.compound_coef],
-                                   pyramid_levels=self.pyramid_levels[self.compound_coef])
+                                   pyramid_levels=self.pyramid_levels[self.compound_coef],
+                                   onnx_export = self.onnx_export)
         self.classifier = Classifier(in_channels=self.fpn_num_filters[self.compound_coef], num_anchors=num_anchors,
                                      num_classes=num_classes,
                                      num_layers=self.box_class_repeats[self.compound_coef],
-                                     pyramid_levels=self.pyramid_levels[self.compound_coef])
+                                     pyramid_levels=self.pyramid_levels[self.compound_coef],
+                                     onnx_export = self.onnx_export)
 
         self.anchors = Anchors(anchor_scale=self.anchor_scale[compound_coef],
                                pyramid_levels=(torch.arange(self.pyramid_levels[self.compound_coef]) + 3).tolist(),
                                **kwargs)
 
-        self.backbone_net = EfficientNetLite(self.backbone_compound_coef[compound_coef], load_weights)
+        self.backbone_net = EfficientNetLite(self.backbone_compound_coef[compound_coef], load_weights, onnx_export = self.onnx_export)
 
     def freeze_bn(self):
         for m in self.modules():
