@@ -220,7 +220,7 @@ class FocalLoss(nn.Module):
 
 class FocalLossDIoU(nn.Module):
     def __init__(self):
-        super(FocalLoss, self).__init__()
+        super(FocalLossDIoU, self).__init__()
 
     def forward(self, classifications, regressions, anchors, annotations, **kwargs):
         alpha = 0.25
