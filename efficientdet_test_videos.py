@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from torch.backends import cudnn
 from backbone import EfficientDetBackbone
+from backbonelite import EfficientDetLiteBackbone
 from efficientdet.utils import BBoxTransform, ClipBoxes
 from utils.utils import preprocess, invert_affine, postprocess, preprocess_video
 
@@ -18,6 +19,8 @@ video_src = 'test/vid1.mp4'  # set int to use webcam, set str to read from a vid
 
 compound_coef = 0
 force_input_size = None  # set None to use default size
+
+weight_path='experiment weights/efficientdet_lite0_19_9000(1)_lite.pth'
 
 threshold = 0.2
 iou_threshold = 0.2
@@ -43,8 +46,9 @@ input_sizes = [512, 640, 768, 896, 1024, 1280, 1280, 1536, 1536]
 input_size = input_sizes[compound_coef] if force_input_size is None else force_input_size
 
 # load model
-model = EfficientDetBackbone(compound_coef=compound_coef, num_classes=len(obj_list))
-model.load_state_dict(torch.load(f'weights/efficientdet-d{compound_coef}.pth'))
+model = EfficientDetLiteBackbone(compound_coef=compound_coef, num_classes=len(obj_list))
+# model.load_state_dict(torch.load(f'weights/efficientdet-d{compound_coef}.pth'))
+model.load_state_dict(torch.load(weight_path, weights_only=False))
 model.requires_grad_(False)
 model.eval()
 
@@ -60,7 +64,7 @@ def display(preds, imgs):
             return imgs[i]
 
         for j in range(len(preds[i]['rois'])):
-            (x1, y1, x2, y2) = preds[i]['rois'][j].astype(np.int)
+            (x1, y1, x2, y2) = preds[i]['rois'][j].astype(int)
             cv2.rectangle(imgs[i], (x1, y1), (x2, y2), (255, 255, 0), 2)
             obj = obj_list[preds[i]['class_ids'][j]]
             score = float(preds[i]['scores'][j])
